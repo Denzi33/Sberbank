@@ -4,7 +4,7 @@
 
 This project is designed to predict peak hours of electricity consumption by Sberbank buildings.
 
-### Files 📁
+### Project structure 📁
 
 - `data`: the directory for the parsed data (".csv" format).
 - `src`: the directory of python modules:

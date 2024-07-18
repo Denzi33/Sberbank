@@ -6,10 +6,12 @@ ASYNC Functions:
 ------------------------------------------------------------------------------------------------------------------------
     main:
         Description: Saves a list of data dictionaries to a ".csv" file.
+        
         Parameters:
             param_file_name - A name of parameters file (.JSON),
             res_file_name - A name of result file (.CSV),
             case - A parsing case number.
+        
         Parameters type:
             str,
             str,

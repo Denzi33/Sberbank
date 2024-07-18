@@ -99,7 +99,7 @@ async def get_data(
                 cur_website_url = f"{website_url}&PowerSystemId={region_id}"
 
                 # Add regions data:
-                resp.extend(await make_request(cur_website_url).get("SubAreas"))
+                resp.extend((await make_request(cur_website_url)).get("SubAreas"))
 
                 # The data will be processed by pandas:
                 # clear_resp: list = await clean_data(resp, parameters.get("del_columns"), inplace=False)

@@ -16,4 +16,4 @@ This project is designed to predict peak hours of electricity consumption for Sb
 - `main.py`: a main python script to run the parsing.
 - `parameters.json`: a file with basic data for parsing.
 - `README.md`: a file with a description of the project.
-- `requirements.md`: the file for installing the necessary libraries.
+- `requirements.txt`: the file for installing the necessary libraries.

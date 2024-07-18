@@ -2,7 +2,7 @@
 
 ### Description 📝
 
-This project is designed to predict peak hours of electricity consumption by Sberbank buildings.
+This project is designed to predict peak hours of electricity consumption for Sberbank buildings.
 
 ### Files 📁
 

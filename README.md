@@ -1,19 +1,19 @@
-# Sber (ПИКОВЫЕ НАГРУЗКИ)⚡️
+# SberBank (ПИКОВЫЕ НАГРУЗКИ)⚡️
 
 ### Description 📝
 
-This project is designed to predict peak hours of electricity consumption for Sberbank buildings.
+This project is designed to predict peak hours of electricity consumption by Sberbank buildings.
 
 ### Files 📁
 
-- `data`: the directory for the saved data ("*.csv").
-- `src`: the directory of the .py files:
+- `data`: the directory for the parsed data (".csv" format).
+- `src`: the directory of python modules:
   - `helpers.py`: the module contains auxiliary functions.
-  - `json_helpers.py`: the module is designed to work with json files.
+  - `json_helpers.py`: the module is designed to work with ".json" files.
   - `parsing.py`: the module is designed to parsing data from web-site.
-- `tests`: directory for function tests .py files.
+- `tests`: the directory of test python modules:
 - `.gitignore`: a gitignore file specifies intentionally untracked files that Git should ignore.
-- `main.py`: the script to run the parsing.
+- `main.py`: A main python script to run the parsing.
 - `parameters.json`: a file with basic data for parsing.
 - `README.md`: a file with a description of the project.
 - `requirements.md`: the file for installing the necessary libraries.

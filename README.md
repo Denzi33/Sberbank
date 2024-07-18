@@ -1,6 +1,6 @@
 # Sberbank (ПИКОВЫЕ НАГРУЗКИ)⚡️
 
-### Description 📝
+### Projectc description 📝
 
 This project is designed to predict peak hours of electricity consumption by Sberbank buildings.
 

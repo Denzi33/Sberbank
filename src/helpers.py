@@ -6,26 +6,34 @@ ASYNC Functions:
 ------------------------------------------------------------------------------------------------------------------------
     clean_data:
         Description: Deletes unnecessary row columns.
+        
         Parameters:
             data_rows - A list of dictionaries to clean,
             del_columns - A list of columns to delete,
             inplace - A flag of filling in-place.
+            
         Parameters type:
             list | None,
             list | None,
             bool [False].
+        
         Returns: A list of cleared data rows.
+    
         Return type: list | None.
 
     make_request:
         Description: Makes requests to the specified address.
+        
         Parameters:
             url - A request link,
             verify - A site security flag.
+            
         Parameters type:
             str,
             bool [False].
+        
         Returns: Response as a data dictionary.
+        
         Return type: dict.
 ------------------------------------------------------------------------------------------------------------------------
 """

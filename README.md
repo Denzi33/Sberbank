@@ -1,4 +1,4 @@
-# SberBank (ПИКОВЫЕ НАГРУЗКИ)⚡️
+# Sberbank (ПИКОВЫЕ НАГРУЗКИ)⚡️
 
 ### Description 📝
 

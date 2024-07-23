@@ -6,35 +6,27 @@ ASYNC Functions:
 ------------------------------------------------------------------------------------------------------------------------
     clean_data:
         Description: Deletes unnecessary row columns.
-        
         Parameters:
             data_rows - A list of dictionaries to clean,
             del_columns - A list of columns to delete,
             inplace - A flag of filling in-place.
-            
         Parameters type:
             list | None,
             list | None,
             bool [False].
-        
         Returns: A list of cleared data rows.
-    
         Return type: list | None.
 
     make_request:
         Description: Makes requests to the specified address.
-        
         Parameters:
             url - A request link,
             verify - A site security flag.
-            
         Parameters type:
             str,
             bool [False].
-        
         Returns: Response as a data dictionary.
-        
-        Return type: dict.
+        Return type: dict | None.
 ------------------------------------------------------------------------------------------------------------------------
 """
 
@@ -73,7 +65,7 @@ async def clean_data(
     return prep_data
 
 
-async def make_request(url: str, verify: bool = False) -> dict:
+async def make_request(url: str, verify: bool = False) -> dict | None:
     """
     Makes requests to the specified address.
 
@@ -82,11 +74,11 @@ async def make_request(url: str, verify: bool = False) -> dict:
     :param verify: bool [False]
         A site security flag.
 
-    :return: dict
+    :return: dict | None
         Response as a data dictionary.
     """
 
     # Create session for async requests:
     async with ClSess(connector=Conn(ssl=verify)) as session:
         async with session.get(url) as resp:
-            return await resp.json()
+            return await resp.json() if resp.status == 200 else None

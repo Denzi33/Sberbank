@@ -6,13 +6,9 @@ Functions:
 ------------------------------------------------------------------------------------------------------------------------
     read_json:
         Description: Returns json file data as dictionary.
-        
         Parameters: json_file_name - A json file name.
-        
         Parameters type: str.
-        
         Returns: A data dictionary.
-        
         Return type: dict | None.
 ------------------------------------------------------------------------------------------------------------------------
 """

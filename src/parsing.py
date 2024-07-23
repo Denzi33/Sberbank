@@ -6,38 +6,30 @@ ASYNC Functions:
 ------------------------------------------------------------------------------------------------------------------------
     get_data:
         Description: Returns data from a resource with set parameters.
-        
         Parameters:
             param - A parameters for requests,
             date - A date of the request,
             case - A parsing case number.
-            
         Parameters type:
             dict,
             datetime,
             int [1].
-            
         Returns: A list of dictionaries with data.
-        
         Return type: list.
 
     parsing:
         Description: The method parses the data.
-        
         Parameters:
             param_file_name - A name of parameters file (.JSON),
             start_date - The left time limit of the request,
             end_date - The right time limit of the request,
             case - A parsing case number.
-            
         Parameters type:
             str,
             datetime,
             datetime,
             int [1].
-            
         Returns: A parsed data.
-        
         Return type: list.
 ------------------------------------------------------------------------------------------------------------------------
 """

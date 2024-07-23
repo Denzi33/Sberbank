@@ -6,12 +6,12 @@ ASYNC Functions:
 ------------------------------------------------------------------------------------------------------------------------
     main:
         Description: Saves a list of data dictionaries to a ".csv" file.
-        
+
         Parameters:
             param_file_name - A name of parameters file (.JSON),
             res_file_name - A name of result file (.CSV),
             case - A parsing case number.
-        
+
         Parameters type:
             str,
             str,
@@ -56,11 +56,11 @@ async def main(
     """
 
     # Save start time:
-    start_time = time.time()
+    # start_time = time.time()
 
     # Define time interval of request:
-    first_date = datetime(2024, 6, 16)
-    last_date = datetime(2024, 7, 16)
+    first_date = datetime(2011, 1, 1)
+    last_date = datetime(2011, 12, 31)
 
     # Save data to pandas dataframe:
     pd.DataFrame(
@@ -69,11 +69,11 @@ async def main(
         )
     ).to_csv(f"data/{res_file_name}.csv")
 
-    print(f"Parsing time (in seconds): {int(time.time() - start_time)}")
+    # print(f"Parsing time (in seconds): {int(time.time() - start_time)}")
 
 
 if __name__ == "__main__":
     # Turn off request warnings:
     dis_warn(InsecureRequestWarning)
 
-    asyncio.run(main("parameters", "new_data", 1))
+    asyncio.run(main("parameters", "2011", 2))

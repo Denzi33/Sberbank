@@ -67,7 +67,7 @@ async def main(
         await parsing(
             f"{param_file_name}.json", first_date, last_date, case
         )
-    ).to_csv(f"data/{res_file_name}.csv")
+    ).to_csv(f"parsed_data/{res_file_name}.csv")
 
     # print(f"Parsing time (in seconds): {int(time.time() - start_time)}")
 

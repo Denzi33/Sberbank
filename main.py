@@ -38,9 +38,9 @@ from urllib3 import disable_warnings as dis_warn
 
 
 async def main(
-    param_file_name: str,
-    res_file_name: str,
-    case: int = 1
+               param_file_name: str,
+               res_file_name: str,
+               case: int = 1
 ) -> None:
     """
     Saves a list of data dictionaries to a ".csv" file.
@@ -64,10 +64,13 @@ async def main(
 
     # Save data to pandas dataframe:
     pd.DataFrame(
-        await parsing(
-            f"{param_file_name}.json", first_date, last_date, case
-        )
-    ).to_csv(f"parsed_data/{res_file_name}.csv")
+                 await parsing(
+                               f"{param_file_name}.json",
+                               first_date,
+                               last_date,
+                               case
+                              )
+                ).to_csv(f"parsed_data/{res_file_name}.csv")
 
     # print(f"Parsing time (in seconds): {int(time.time() - start_time)}")
 

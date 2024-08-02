@@ -27,16 +27,16 @@ warnings.simplefilter(action="ignore", category=FutureWarning)
 rus_holidays = [str(i)[5:] for i in set(holidays.RUS(years=2020).keys())]
 
 # Адрес каталога с файлами данных (относительно базового каталога):
-data_url = "parsed_data/"
+data_url = "../parsed_data/"
 
 # Адрес подготовленных данных (относительно базового каталога):
-prep_data_url = "prepare_data/data.gzip"
+prep_data_url = "../prepare_data/data.gzip"
 
 # Признак для исследования (имеющиеся):
 main_columns = {"Datetime", "Name", "IBR_ActualConsumption"}
 
 
-# Функции создания признаков
+# Функции создания признаков:
 def get_year(cur_datetime: str) -> int:
     """
     Select a year from datetime string.
@@ -194,3 +194,17 @@ def to_int(sample: str) -> float:
     """
 
     return np.nan if '-' in sample else int(sample.replace(' ', '').rstrip("МВт*ч"))
+
+# Функция оценки прогноза модели:
+def check_res(y_pred: np.array, y_true: np.array) -> None:
+    """
+    Prints all necessary metrics for time series.
+    
+    
+    
+    """
+    
+    print("Mean squared error on test set: ", mean_squared_error(y_true, y_pred))
+    print("Mean absolute error on test set: ", mean_absolute_error(y_true, y_pred))
+    print("Mean percentage absolute error on test set: ", mean_absolute_percentage_error(y_true, y_pred))
+    

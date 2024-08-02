@@ -1,29 +1,37 @@
 {
   "website_url": "https://br.so-ups.ru/webapi/api/map/MapPartial?",
   "del_columns": [
-    "Id",
-    "$id",
-    "Top",
-    "Left",
-    "Right",
-    "Bottom",
-    "Disabled",
-    "Selected",
-    "SvgPaths",
-    "SubjectId",
-    "PowerSystemId",
-    "InfoCoordinates",
-    "VSVGO_Consumption",
-    "VSVGO_AveragePrice",
-    "ParentPowerSystemId"
+                  "Id",
+                  "$id",
+                  "Top",
+                  "Left",
+                  "Right",
+                  "Bottom",
+                  "Disabled",
+                  "Selected",
+                  "SvgPaths",
+                  "SubjectId",
+                  "PowerSystemId",
+                  "InfoCoordinates",
+                  "VSVGO_Consumption",
+                  "VSVGO_AveragePrice",
+                  "ParentPowerSystemId"
   ],
   "nec_columns": [
-    "Name",
-    "IBR_AveragePrice",
-    "IBR_ActualGeneration",
-    "IBR_ActualConsumption",
-    "IBR_PlannedGeneration",
-    "IBR_PlannedConsumption"
+                  "Name",
+                  "IBR_AveragePrice",
+                  "IBR_ActualGeneration",
+                  "IBR_ActualConsumption",
+                  "IBR_PlannedGeneration",
+                  "IBR_PlannedConsumption"
   ],
-  "regions_ids": ["530000", "540000", "550000", "600000", "610000", "630000", "840000"]
+  "regions_ids": [
+                  "530000",
+                  "540000",
+                  "550000",
+                  "600000",
+                  "610000",
+                  "630000",
+                  "840000"
+                 ]
 }

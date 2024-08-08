@@ -4,6 +4,7 @@ pandas
 urllib3
 asyncio
 aiohttp
+pyarrow
 datetime
 requests
 itertools

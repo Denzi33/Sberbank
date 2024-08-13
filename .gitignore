@@ -1,5 +1,5 @@
 .csv
 .venv
 .idea
-.ipynb_checkpoints
 __pycache__
+.ipynb_checkpoints

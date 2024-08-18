@@ -93,34 +93,40 @@ pers_palette = [
                 "#ff595e", "#ffca3a", "#8ac926", "#1982c4",
                 "#6a4c93"
                ]
+###
+# Ссылки с данными:
+data_urls = {
+             "notebooks": "../data/",
+}
 
 # Список дат государственных праздников России:
 russ_holidays = [str(i)[5: ] for i in set(holidays.RUS(years=2020).keys())]
-
-# Адрес каталога с файлами данных (относительно базового каталога):
-data_url = "../parsed_data/"
-
-feature_data_url = "../../prepare_data/feature_data.gzip"
-
-# Адрес подготовленных данных (относительно базового каталога):
-prep_data_url = "../prepare_data/data.gzip"
+###
 '''______________________________________________________________________________________________________________________________________'''
 # Функции для работы с моделью:
 '''______________________________________________________________________________________________________________________________________'''
-def save_model(model_name: str, model) -> None:
+def save_model(
+               model,
+               model_name: str,
+               model_path: str=None
+              ) -> None:
     """
-    
+    Консервирует текущее состояние модели в указанную директорию с требуемым названием.
+
     """
 
-    with open(f"{model_name}.pkl", "wb") as model_file:
+    with open(f"{model_path}{model_name}.pkl", "wb") as model_file:
         pickle.dump(model, model_file)
 
-def open_model(model_path: str):
+
+def open_model(model_name: str, model_path: str=None) -> object:
     """
     ...
     """
 
-    with open(f"{model_path}.pkl", "rb") as model_file:
+    rel_model_address = f"{model_name}.pkl" if model_path is None else f"{model_path}{model_name}.pkl"
+        
+    with open(rel_model_address, "rb") as model_file:
         model = pickle.load(model_file)
 
     return model
@@ -333,43 +339,47 @@ def is_holiday(curr_dt: str) -> int:
 
     return int(curr_dt.split()[0][5:] in russ_holidays)
 
-def create_lag_feature(df: pd.DataFrame, step_count: int) -> pd.Series:
+def create_lag_feature(main_df: pd.DataFrame, step_count: int, lag_column="actual_consumption", size=None) -> pd.Series:
     """
+    Создаётся признак с заданной параметром задержкой.
+    
     ...
     """
     
-    temp_df = pd.DataFrame()
+    lag_df = pd.DataFrame()
 
-    for subj in df["subject_name"].unique():
-        subj_df = df[df["subject_name"] == subj].copy()
-        subj_df["actual_consumption"] = subj_df["actual_consumption"].shift(step_count)
-        temp_df = pd.concat([temp_df, subj_df], axis=0) 
-        #         temp_df = temp_df.append(subj_df)
-        
-    temp_df.sort_values(by=["datetime", "subject_name"], inplace=True)
+    for subj in uniq_subjs:
+        subj_df = main_df[main_df["subject_name"] == subj]
+        subj_df["lag_feature"] = subj_df[lag_column].shift(step_count)
+        lag_df = pd.concat([lag_df, subj_df], axis=0, ignore_index=True)
     
-    return temp_df["actual_consumption"]
+    lag_df.sort_values(by=["year", "day_of_year", "hour", "subject_name"], inplace=True)
+
+    return lag_df["lag_feature"][-size:].values
 
 
-def create_time_dummie_feature(df: pd.DataFrame) -> pd.Series:
+def create_time_dummie_feature(df: pd.DataFrame, start_index=None) -> pd.Series:
     """
     
     """
     
+    if start_index is None:
+        start_index = 0
+    
     temp_df = pd.DataFrame()
 
     for subj in df["subject_name"].unique():
         subj_df = df[df["subject_name"] == subj].copy()
-        subj_df["time_dummie"] = range(1, subj_df.shape[0] + 1)
+        subj_df["time_dummie"] = range(1 + start_index, subj_df.shape[0] + 1 + start_index)
         temp_df = pd.concat([temp_df, subj_df], axis=0) 
 #         temp_df.append(subj_df)
         
-    temp_df.sort_values(by=["datetime", "subject_name", "time_dummie"], inplace=True)
+    temp_df.sort_values(by=["year", "day_of_year", "hour", "subject_name", "time_dummie"], inplace=True)
     
     return temp_df["time_dummie"]
 
-def create_time_step_features(df):
-    df["time_dummie"] = create_time_dummie_feature(df)
+def create_time_step_features(df, tmp=None):
+#     df["time_dummie"] = create_time_dummie_feature(df, tmp)
     df["year"] = df["datetime"].apply(get_year)
     df["month"] = df["datetime"].apply(get_month)
     df["day_of_month"] = df["datetime"].apply(get_day_month)
@@ -384,6 +394,81 @@ def create_time_step_features(df):
 '''______________________________________________________________________________________________________________________________________'''
 # Функции для преобразования данных:
 '''______________________________________________________________________________________________________________________________________'''
+def prep_forecast_data(
+                       raw_df: pd.DataFrame,
+                       main_df_name: str,
+                       use_copy: bool=True,
+                       main_df_path: str=None
+                      ) -> pd.DataFrame:
+    """
+    Подготавливает данные для прогнозирования.
+    Подготовка подразумевает под собой: создание фич, сортировка, ... .
+    Требуются данные в формате DataFrame со следующими колонками: "subject_name", "datetime", "actual_consumption",
+    где значения признака "actual_consumption" ни на что не влияют.
+
+    ...
+    """
+
+    # Настраиваем относительный путь до базового dataframe-а:
+    main_df_rel_addres = main_df_name if main_df_path is None else main_df_path + main_df_name
+
+    # Определяем необходимость изменения входного dataframe-а:
+    forecast_data = raw_df if use_copy == False else raw_df.copy()
+
+    if ".csv" in main_df_name:
+        main_df = pd.read_csv(main_df_rel_addres)
+    elif ".gzip" in main_df_name:
+        main_df = pd.read_parquet(main_df_rel_addres)
+    elif ".xsl" in main_df_name:
+        main_df = pd.read_excel(main_df_rel_addres)
+    ...
+
+    main_df.sort_values(by=list(main_df.columns), inplace=True)
+    main_df.drop_duplicates(inplace=True)
+    forecast_data.sort_values(by=list(forecast_data.columns), inplace=True)
+    forecast_data.drop_duplicates(inplace=True)
+
+    # Берём достаточное количество строк для создания лаговых фич (75 субъектов * 24 часа * 365 дней = 657 000 строк):
+    main_df = main_df.iloc[-800000:]
+
+    # Запоминаем количество строк DataFrame-а для прогнозирования:
+    count_forecast_data_rows = forecast_data.shape[0]
+
+    # Создаём признаки у DataFrame-а прогнозирования:
+    forecast_data["datetime"] = forecast_data["datetime"].astype(str)
+    forecast_data = create_time_step_features(forecast_data, max(main_df["time_dummie"]))  # Check function
+    forecast_data = pd.concat([forecast_data, pd.get_dummies(forecast_data["subject_name"], columns=uniq_subjs)], axis=1)
+    
+    forecast_data.sort_index(axis=1, inplace=True)
+
+    forecast_data_columns = forecast_data.columns
+    main_df["subject_name"] = decoding(main_df[uniq_subjs])  # Check functuion
+    main_df["datetime"] = main_df.index
+
+    main_df.drop(columns=["lag_hour", "lag_day", "lag_week", "lag_month", "lag_year"], inplace=True)
+
+#     forecast_data = pd.concat(
+#                               [main_df[forecast_data_columns], forecast_data],
+#                               axis=0,
+#                               ignore_index=True
+#                              )
+    forecast_data["lag_hour"] = create_lag_feature(main_df, time_steps["hour"], size=count_forecast_data_rows // 75)
+    forecast_data["lag_day"] = create_lag_feature(main_df, time_steps["day"], size=count_forecast_data_rows // 75)
+    forecast_data["lag_week"] = create_lag_feature(main_df, time_steps["week"], size=count_forecast_data_rows // 75)
+    forecast_data["lag_month"] = create_lag_feature(main_df, time_steps["month"], size=count_forecast_data_rows // 75)
+    forecast_data["lag_year"] = create_lag_feature(main_df, time_steps["year"], size=count_forecast_data_rows // 75)
+    return forecast_dataa
+    # Оставляем только рабочие дни:
+    forecast_data = forecast_data[forecast_data["day_of_week"] < 6]
+
+    forecast_data.sort_index(axis=1, inplace=True)
+    forecast_data.drop(columns=["datetime", "subject_name", "actual_consumption"], inplace=True)
+    forecast_data.sort_values(by=list(forecast_data.columns), inplace=True)
+    forecast_data.drop_duplicates(inplace=True)
+
+    return forecast_data.iloc[-count_forecast_data_rows:]
+
+
 def create_forecast_data(
                          step_count: int,
                          step_val: str,
@@ -415,7 +500,7 @@ def create_forecast_data(
                                         int(main_df.iloc[-1]["year"]),
                                         int(main_df.iloc[-1]["month"]),
                                         int(main_df.iloc[-1]["day_of_month"]),
-                                        int(main_df.iloc[-1]["hour"])
+                                        int(main_df.iloc[-1]["hour"] + 1)
                                        )
 
     for dt in rrule(
@@ -444,8 +529,9 @@ def make_subj_pred(
                    step_count: int,
                    step_val: str,
                    main_df_path: str,
-                   model_path: str,
-                   subj_name: str = None
+                   model_name: str,
+                   subj_name: str=None,
+                   model_path: str=None
                   ):
     """
     Прогнозирует энергопотребление для конкретного субъекта на n временных интервалов вперёд.
@@ -461,17 +547,17 @@ def make_subj_pred(
         A list of dictionaries with data.
     """
     
-    model = open_model(model_path)
+    model = open_model(model_name, model_path)
     forecast_data = create_forecast_data(step_count, step_val, main_df_path)
     feature_forecast_data = prep_forecast_data(forecast_data, main_df_path)
-    predictions = model.predict(feature_forecast_data[data_features])
-    feature_forecast_data.reset_index(drop=True, inplace=True)
-    data = pd.concat([feature_forecast_data, pd.Series(predictions, name="actual_consumption")], axis=1)
-    
-    if subj_name is None:
-        return data
-    else:
-        return data[data[subj_name] == 1]
+#     predictions = model.predict(feature_forecast_data[data_features])
+#     feature_forecast_data.reset_index(drop=True, inplace=True)
+#     data = pd.concat([feature_forecast_data, pd.Series(predictions, name="actual_consumption")], axis=1)
+    return feature_forecast_data
+#     if subj_name is None:
+#         return data
+#     else:
+#         return data[data[subj_name] == 1]
 
 
 def find_index_with_one(row):
@@ -486,57 +572,6 @@ def decoding(encoding_columns):
     tmp = uniq_subjs
     
     return [tmp[i] for i in zxc]
-
-
-def prep_forecast_data(
-                       df: pd.DataFrame,
-                       main_df_path: str
-                      ) -> pd.DataFrame:
-    """
-    Подготавливает данные для прогнозирования.
-    Подготовка подразумевает под собой: создание фич, сортировка
-    Требуются данные в формате dataframe со следующими колонками: "subject_name", "datetime", "actual_consumption".
-
-    ...
-    """
-
-    main_df = pd.read_parquet(main_df_path)
-
-    forecast_data = df.copy()
-    forecast_data.sort_values(by=["subject_name", "datetime"], inplace=True)
-    forecast_data.drop_duplicates(inplace=True)
-
-    count_forecast_data_rows = forecast_data.shape[0]
-
-    forecast_data["datetime"] = forecast_data["datetime"].astype(str)
-
-    forecast_data = create_time_step_features(forecast_data)  ###
-    forecast_data = pd.concat([forecast_data, pd.get_dummies(forecast_data["subject_name"], columns=uniq_subjs)], axis=1)
-    forecast_data_columns = forecast_data.columns
-    
-    main_df["subject_name"] = decoding(main_df[uniq_subjs])
-    
-    main_df["datetime"] = main_df.index
-    #
-    forecast_data = pd.concat(
-                              [main_df[forecast_data_columns], forecast_data],
-                              axis=0,
-                              ignore_index=True
-                             )
-
-    forecast_data["lag_hour"] = create_lag_feature(forecast_data, time_steps["hour"])
-    forecast_data["lag_day"] = create_lag_feature(forecast_data, time_steps["day"])
-    forecast_data["lag_week"] = create_lag_feature(forecast_data, time_steps["week"])
-    forecast_data["lag_month"] = create_lag_feature(forecast_data, time_steps["month"])
-    forecast_data["lag_year"] = create_lag_feature(forecast_data, time_steps["year"])
-
-    forecast_data = forecast_data[forecast_data["day_of_week"] < 6]
-     
-    forecast_data.sort_values(by=["datetime", "subject_name", "time_dummie"], inplace=True)
-    forecast_data.drop(columns=["datetime", "subject_name", "actual_consumption"], inplace=True)
-    forecast_data.dropna(inplace=True)
-    
-    return forecast_data.iloc[-count_forecast_data_rows:]
 
 
 # def prepare_df(df_name: str, data_format: str) -> pd.DataFrame:
@@ -587,20 +622,14 @@ def prep_forecast_data(
 #     return new_df.iloc[-n:]
 
 
-def get_real_values(df, dummies):
+def oh_decod(df: pd.DataFrame, dumm_columns: list | pd.Series):
     """
-    Восстанавливает оригинальные значения из закодированных дамми-переменных.
-    
-    Параметры:
-    df (pd.DataFrame) - исходный DataFrame
-    dummies (list) - список названий дамми-переменных
-    
-    Возвращает:
-    pd.DataFrame - DataFrame с восстановленными исходными значениями
+    Восстанавливает категориальный признак из числовых (OneHot decoding).
+
+    ...
     """
 
-    # Создаем копию DataFrame, чтобы не модифицировать исходный
-    df_real = df.copy()
+    df_copy = df.copy()
     
     # Находим уникальные значения для каждой дамми-переменной
     unique_values = {dummy: df[dummy].unique() for dummy in dummies}
@@ -620,6 +649,16 @@ def get_real_values(df, dummies):
     return df_real
 
 
+# def is_peak_hour(df: pd.DataFrame):
+#     for row_indx in df.shape[0]:
+#         max(df[
+#                (df["year"] == df.iloc[row_indx]["year"]) &
+#                (df["month"] == df.iloc[row_indx]["month"]) &
+#                (df["subject_name"] == df.iloc[row_indx]["month"]) &
+#               ]["actual_consumption"])
+
+# def prep_predict_report(predict: pd.DataFrame, )
+
 def prep_target (raw_target: str) -> int | float:
     """
     Преобразует целевую переменную в числовой формат.
@@ -632,4 +671,3 @@ def prep_target (raw_target: str) -> int | float:
 
     return np.nan if '-' in raw_target else int(raw_target.replace(' ', '').rstrip("МВт*ч"))
 '''______________________________________________________________________________________________________________________________________'''
-    

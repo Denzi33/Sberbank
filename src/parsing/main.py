@@ -27,16 +27,16 @@ import asyncio
 
 # Necessary modules with alias:
 import pandas as pd
-import src.utils_functions
+import utils_functions
 
 # Necessary functions and variables:
-from datetime import datetime
-from src.parsing import parsing
+from datetime import datetime, timedelta
+from parsing import parsing
 from urllib3.exceptions import InsecureRequestWarning
 
 # Necessary functions and variables with alias:
 from urllib3 import disable_warnings as dis_warn
-from src.utils_functions import read_json
+from utils_functions import read_json
 
 
 async def main(
@@ -62,9 +62,9 @@ async def main(
 
     # Define time interval of request:
 #     first_date = datetime(2011, 1, 1)
-    tmp = read_json("parameters.json")
-    first_date = datetime.strptime(tmp["last_time"], "%Y-%m-%d %H:%M:%S"),
-    last_date = datetime.now()
+    tmp = read_json("../../resources/parameters.json")
+    first_date = datetime.strptime(tmp["last_datetime"], "%Y-%m-%d %H:%M:%S"),
+    last_date = datetime.now() - timedelta(hours=2)
 
     # Save data to pandas dataframe:
     pd.DataFrame(
@@ -74,7 +74,7 @@ async def main(
                                last_date,
                                case
                               )
-                ).to_csv(f"parsed_data/{res_file_name}.csv")
+                ).to_parquet(f"../../data/{res_file_name}.gzip")
 
     # print(f"Parsing time (in seconds): {int(time.time() - start_time)}")
 
@@ -82,4 +82,4 @@ async def main(
 if __name__ == "__main__":
     # Turn off request warnings:
     dis_warn(InsecureRequestWarning)
-    asyncio.run(main("parameters", "new_data", 2))
+    asyncio.run(main("../../resources/parameters", "new_data", 2))

@@ -44,7 +44,7 @@ ASYNC Functions:
 
 # Necessary functions and variables:
 from datetime import datetime
-from src.utils_functions import make_request, read_json  #, clean_data
+from utils_functions import make_request, read_json  #, clean_data
 from dateutil.rrule import rrule, HOURLY
 
 
